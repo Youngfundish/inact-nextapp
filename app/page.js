@@ -1,113 +1,157 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React from "react";
+import { Tree, TreeNode } from "react-organizational-chart";
+import Chart from "chart.js/auto";
+import { Bar } from "react-chartjs-2";
+const lars = { Name: "Lars", Age: 20, ShoeSize: 46, Gender: "M", Children: [] };
+const iben = { Name: "Iben", Age: 26, ShoeSize: 38, Gender: "F", Children: [] };
+const bente = {
+  Name: "Bente",
+  Age: 46,
+  ShoeSize: 37,
+  Gender: "F",
+  Children: [lars],
+};
+const viggo = {
+  Name: "Viggo",
+  Age: 47,
+  ShoeSize: 42,
+  Gender: "M",
+  Children: [iben],
+};
+const henning = {
+  Name: "Henning",
+  Age: 65,
+  ShoeSize: 44,
+  Gender: "M",
+  Children: [viggo, bente],
+};
+
+const ChartExample = () => {
+
+// Family Tree
+  const renderNode = (node) => (
+    <TreeNode
+      key={node.Name}
+      label={
+        <div className="p-1 bg-gray-400 rounded-md border border-gray-300">
+          {node.Name}
+        </div>
+      }
+    >
+      {node.Children && node.Children.map((child) => renderNode(child))}
+    </TreeNode>
+  );
+
+// Shoe Size Chart
+  const generateChartData = (peopleData) => {
+    // Initialize arrays to store labels (names) and data (shoe sizes)
+    const labels = [];
+    const data = [];
+
+    // Iterate over each person in the data
+    peopleData.forEach((person) => {
+      // Add the person's name to the labels array
+      labels.push(person.Name);
+
+      // Add the person's shoe size to the data array
+      data.push(person.ShoeSize);
+    });
+    
+
+    // Return the formatted chart data
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Shoe Size",
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          data,
+        },
+      ],
+    };
+  };
+  
+  const chartData = generateChartData([lars, iben, bente, viggo, henning]);
+
+  const options = {
+    plugins: {
+      title: {
+        display: true,
+        text: "Shoe Size of Family",
+      },
+    },
+    responsive: true,
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+      },
+    },
+  };
+
+// Average Shoe Size For Genders
+  const calculateAverageShoeSize = (peopleData, gender) => {
+    // Filter the data for the specified gender
+    const genderData = peopleData.filter((person) => person.Gender === gender);
+
+    // Calculate the total shoe size for the gender
+    const totalShoeSize = genderData.reduce(
+      (acc, person) => acc + person.ShoeSize,
+      0
+    );
+
+    // Calculate the average shoe size
+    const averageShoeSize = totalShoeSize / genderData.length;
+
+    return averageShoeSize;
+  };
+
+  // Calculate the average shoe size for each gender
+  const averageShoeSizeMale = calculateAverageShoeSize(
+    [lars, iben, bente, viggo, henning], 'M'
+  );
+  const averageShoeSizeFemale = calculateAverageShoeSize(
+    [lars, iben, bente, viggo, henning], 'F'
+  );
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="z-10 max-w-6xl w-full items-center justify-between font-mono text-sm lg:flex">
+        <section className="mx-auto px-4 max-w-screen-xl md:px-8 grid xl:grid-cols-2 lg:grid-cols-2 gap-7 xs:grid-cols-1">
+          <div className="max-w-sm rounded overflow-hidden shadow-lg bg-slate-800 px-6 py-8">
+            <h1 className="text-base leading-7 text-gray-400">
+              Average Shoe Size (Male):
+            </h1>
+            <p className="order-first text-3xl font-semibold tracking-tight text-gray-600 sm:text-5xl">
+              {averageShoeSizeMale}%
+            </p>
+          </div>
+          <div className="max-w-sm rounded overflow-hidden shadow-lg bg-slate-800 px-6 py-8">
+            <h1 className="text-base leading-7 text-gray-400">
+              Average Shoe Size (Female):
+            </h1>
+            <p className="order-first text-3xl font-semibold tracking-tight text-gray-600 sm:text-5xl">
+              {averageShoeSizeFemale}%
+            </p>
+          </div>
+          <div className="max-w-sm rounded overflow-hidden shadow-lg bg-slate-800 px-6 py-4">
+            <Tree lineColor={"green"} label={<div>{henning.Name}</div>}>
+              {henning.Children &&
+                henning.Children.map((child) => renderNode(child))}
+            </Tree>
+          </div>
+          <div className="max-w-sm rounded overflow-hidden shadow-lg bg-slate-800 px-6 py-4">
+            <Bar options={options} data={chartData} />
+          </div>
+        </section>
       </div>
     </main>
   );
-}
+};
+
+export default ChartExample;
